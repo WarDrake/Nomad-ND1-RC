@@ -26,17 +26,16 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
 | Piece | State |
 |---|---|
 | Protocol spec | ✅ Complete, from decompiled source |
-| UDP control (connect/drive/LED/telemetry) | ✅ Implemented; **needs on-car validation** |
+| UDP control (connect/drive/LED/telemetry) | ✅ Protocol confirmed on a live car (handshake + battery telemetry working via `nomad_probe.py`) |
 | Wi-Fi network binding | ✅ Implemented |
-| RTSP video | ⚠️ Implemented with ExoPlayer, but the stream **does not yet play** — see below |
+| RTSP video | ✅ Stream confirmed: standard LIVE555 H.264 640×480@25fps; plays over TCP. App uses ExoPlayer + forced RTP-over-TCP |
+| Android app build | ⚠️ Not yet compiled (no SDK on the authoring machine) — open in Android Studio |
 | Signing / release build | ⛔ Not set up |
 
-### ⚠️ Open issue: video + car connectivity
-As of the last test, `ffplay rtsp://192.168.0.1/vs1` did **not** play, and raw `nc` commands
-did not reach the car. The most likely cause of the `nc` failure is documented in
-`tools/nomad_probe.py`: the app binds **local UDP port 8234** and the car replies there, so a
-random-source-port `nc` never completes the exchange. **Use the probe instead** — it binds
-8234 like the real app:
+### Testing against the car (both paths now confirmed working)
+
+`nc` cannot talk to the car because it uses a random source port; the car replies to
+port **8234**. Use the probe, which binds 8234 like the real app:
 
 ```bash
 # On a laptop joined to the car's Wi-Fi (verify you got a 192.168.0.x address first):
@@ -45,10 +44,16 @@ python3 tools/nomad_probe.py connect       # full handshake + keepalive; a BATT=
 python3 tools/nomad_probe.py drive         # interactive driving REPL
 ```
 
-If `diagnose` gets a `BATT=` reply, the control protocol is confirmed and the Android app
-should work. The RTSP video is a separate problem — if VLC/ffplay can't decode `vs1`, we'll
-need libVLC or a bundled modern FFmpeg (the original app shipped its own FFmpeg 5.x, which
-suggests a nonstandard stream). See NOMAD-ND1-PROTOCOL.md §6.
+Control is **confirmed**: the handshake connects and the car returns `BATT=` telemetry.
+
+Video is **confirmed**: with a control session active, the stream plays with
+```bash
+ffplay -rtsp_transport tcp rtsp://192.168.0.1/vs1     # works
+vlc --rtsp-tcp rtsp://192.168.0.1/vs1                 # VLC must be forced to TCP
+```
+It is a standard LIVE555 H.264 640×480@25fps stream (see `video_log` and
+NOMAD-ND1-PROTOCOL.md §6). The car does **not** serve UDP RTP reliably, so the client must
+force RTP-over-TCP — which the app does. No custom decoder required.
 
 ## Building the Android app
 

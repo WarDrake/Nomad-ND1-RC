@@ -18,14 +18,13 @@ import us.creativeworks.nomad.control.Protocol
 /**
  * Renders the car's RTSP camera feed with Media3/ExoPlayer.
  *
- * NOTE: whether this works out of the box is the project's main open question.
- * The legacy app shipped its own FFmpeg decoder, which hints the stream MAY be
- * a nonstandard RTSP/RTP dialect. If ExoPlayer errors on rtsp://192.168.0.1/vs1,
- * fall back to libVLC or a bundled modern FFmpeg. Validate the stream first with
- * ffplay/VLC from a laptop joined to the car's Wi-Fi.
+ * Stream verified against a live car (see NOMAD-ND1-PROTOCOL.md §6): a standard
+ * LIVE555 server delivering H.264 Main / yuv420p / 640x480 / 25fps — trivially
+ * hardware-decodable. No custom decoder needed.
  *
- * [forceTcp] switches RTP to TCP interleaving, which fixes many cheap-camera
- * streams that don't do UDP RTP cleanly.
+ * [forceTcp] MUST stay true: the car does not deliver UDP RTP reliably (VLC's
+ * UDP default fails to open it), so we force RTP-over-TCP interleaving — the same
+ * transport that works with `ffplay -rtsp_transport tcp`.
  */
 @OptIn(UnstableApi::class)
 @Composable

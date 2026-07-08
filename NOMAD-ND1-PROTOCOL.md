@@ -206,9 +206,22 @@ settings screen.
 
 ---
 
-## 6. Video (RTSP) — CONFIRMED transport, decoder is the main port risk
+## 6. Video (RTSP) — CONFIRMED end-to-end (stream captured from a live car)
 
 - URL: **`rtsp://192.168.0.1/vs1`**
+- **Stream verified 2026-07-08** with `ffplay -rtsp_transport tcp rtsp://192.168.0.1/vs1`
+  against a live car (control session active). `ffprobe`/ffplay reported:
+  - RTSP server: **LIVE555** (`testOnDemandRTSPServer`, LIVE555 Streaming Media v2013.04.06)
+    — a completely standard RTSP/RTP stack, **not** a custom dialect.
+  - Video: **H.264 (Main profile), yuv420p (progressive), 640×480, 25 fps.**
+  - This is trivially decodable by any modern phone's hardware H.264 decoder.
+- **Transport: TCP-interleaved RTP is the reliable path.** ffplay works with
+  `-rtsp_transport tcp`. VLC (which defaults to UDP RTP) **fails** to open the stream until
+  forced to TCP (`vlc --rtsp-tcp`). The car/AP does not deliver UDP RTP reliably, so the
+  client MUST force RTP-over-TCP. Our ExoPlayer setup does this via
+  `RtspMediaSource.Factory().setForceUseRtpTcp(true)`.
+- The original app bundled its own FFmpeg **not** because the stream is unusual, but because
+  2013-era Android lacked usable built-in RTSP/H.264 playback. That reason no longer applies.
 - The original app did **not** use Android's media stack. It bundled **FFmpeg 5.x**
   (`libavcodec-56`, `libavformat-56`, `libavfilter-5`, `libswscale`, `libswresample`) plus a
   custom JNI wrapper `libaveronix_jni.so` / `libGetJNILib.so`, and rendered decoded frames
@@ -217,17 +230,13 @@ settings screen.
 - Native code was **32-bit only** (`armeabi`, `x86`). No arm64 — a primary reason the APK
   won't run on modern phones.
 
-**For the rebuild:** do NOT reuse the old FFmpeg blobs. Try, in order:
-1. **AndroidX Media3 / ExoPlayer** with the RTSP module — zero native code, handles
-   standard H.264 RTSP.
-2. **libVLC for Android** — more tolerant of nonstandard RTSP/RTP dialects.
-3. Only if both choke on `vs1`: bundle a modern FFmpeg (e.g. `ffmpeg-kit`) built for
-   `arm64-v8a`.
+**For the rebuild (decided):** use **AndroidX Media3 / ExoPlayer** with the RTSP module and
+**force RTP-over-TCP**. Zero native code, standard H.264 — this is the whole solution. Do NOT
+reuse the old FFmpeg blobs. libVLC / bundled FFmpeg are no longer needed; keep them in mind
+only as a fallback if Media3's RTSP client trips over some LIVE555 quirk in practice.
 
-⚠️ **This is the one genuine unknown.** Because the app shipped its own decoder, the stream
-*may* be a nonstandard RTSP/RTP variant that off-the-shelf players reject. **Validate first**
-by pointing `ffplay`/VLC at `rtsp://192.168.0.1/vs1` on a laptop joined to the car's Wi-Fi.
-The result decides whether video is a 1-hour ExoPlayer drop-in or a multi-day native task.
+✅ **Resolved.** The stream is a standard LIVE555 H.264 feed and plays with off-the-shelf
+tooling. The only gotcha is transport: **must be TCP**, which the app already forces.
 
 ---
 
