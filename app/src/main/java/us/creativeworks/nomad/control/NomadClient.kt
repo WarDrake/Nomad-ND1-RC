@@ -51,11 +51,10 @@ class NomadClient(
     private val _status = MutableStateFlow(CarStatus())
     val status: StateFlow<CarStatus> = _status.asStateFlow()
 
-    // Current drive intent, streamed at 10 Hz.
+    // Current drive intent, streamed continuously at 10 Hz while connected.
     @Volatile private var forwardPwm = 0
     @Volatile private var backwardPwm = 0
     @Volatile private var steering = Protocol.STEER_CENTER_DEFAULT
-    @Volatile private var driving = false
     @Volatile private var lastReplyAt = 0L
 
     /** Steering trim center (128 default; adjust +/- to correct pull). */
@@ -75,12 +74,16 @@ class NomadClient(
         }
     }
 
-    /** Set the current drive intent. Non-zero engages the 10 Hz stream. */
+    /**
+     * Set the current drive intent. This only updates the streamed values — the
+     * drive loop sends them (including zeros) continuously at 10 Hz, so releasing
+     * a control streams a stop within one tick. We must never simply *stop*
+     * sending: the car holds the last command it received, so silence = keep going.
+     */
     fun setDrive(forward: Int, backward: Int, steer: Int) {
         forwardPwm = forward.coerceIn(0, 255)
         backwardPwm = backward.coerceIn(0, 255)
         steering = steer.coerceIn(0, 255)
-        driving = forwardPwm != 0 || backwardPwm != 0 || steering != steerCenter
     }
 
     fun throttle(pwm: Int) = setDrive(pwm.coerceAtLeast(0), 0, steering)
@@ -186,10 +189,11 @@ class NomadClient(
 
     private fun startDriveLoop() {
         driveJob = scope.launch {
+            // Stream the current command continuously while connected. Neutral is
+            // (0,0,center), so a released control actively tells the car to stop
+            // rather than leaving it on the last non-zero command.
             while (isActive) {
-                if (driving) {
-                    runCatching { send(Protocol.drive(forwardPwm, backwardPwm, steering)) }
-                }
+                runCatching { send(Protocol.drive(forwardPwm, backwardPwm, steering)) }
                 delay(Protocol.DRIVE_INTERVAL_MS)
             }
         }
@@ -208,7 +212,10 @@ class NomadClient(
     }
 
     private fun teardown(newState: ConnectionState) {
-        driving = false
+        // Reset intent to neutral so a later reconnect never resumes on a stale command.
+        forwardPwm = 0
+        backwardPwm = 0
+        steering = steerCenter
         battJob?.cancel(); battJob = null
         driveJob?.cancel(); driveJob = null
         rxJob?.cancel(); rxJob = null
