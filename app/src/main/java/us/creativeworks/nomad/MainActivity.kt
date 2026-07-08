@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import us.creativeworks.nomad.input.GamepadController
 import us.creativeworks.nomad.ui.ControlScreen
 import us.creativeworks.nomad.ui.ControlViewModel
+import us.creativeworks.nomad.ui.theme.NomadTheme
 
 /**
  * Single-activity Compose host. Requests the Wi-Fi/location permissions needed
@@ -32,7 +33,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestWifiPermissions()
         setContent {
-            ControlScreen(vm)
+            NomadTheme {
+                ControlScreen(vm)
+            }
         }
     }
 

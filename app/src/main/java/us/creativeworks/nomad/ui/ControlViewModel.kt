@@ -86,7 +86,21 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun onGamepadDrive(steer: Float, forward: Float, reverse: Float) {
         val s = if (abs(steer) < STEER_DEADZONE) 0f else steer
-        val steerLevel = client.steerCenter + (s * (Protocol.STEER_TOTAL_STEP / 2)).roundToInt()
+        pushDrive(s, forward, reverse)
+    }
+
+    /**
+     * Apply a touch-pad drive intent: [steer] and [throttle] in -1..1
+     * (throttle positive = forward). No deadzone — touch input is deliberate.
+     */
+    fun onTouchDrive(steer: Float, throttle: Float) {
+        val forward = if (throttle > 0f) throttle else 0f
+        val reverse = if (throttle < 0f) -throttle else 0f
+        pushDrive(steer, forward, reverse)
+    }
+
+    private fun pushDrive(steer: Float, forward: Float, reverse: Float) {
+        val steerLevel = client.steerCenter + (steer.coerceIn(-1f, 1f) * (Protocol.STEER_TOTAL_STEP / 2)).roundToInt()
         val net = forward - reverse
         val fw = if (net > 0f) (net * Protocol.SPEED_TOTAL_STEP).roundToInt() else 0
         val bw = if (net < 0f) (-net * Protocol.SPEED_TOTAL_STEP).roundToInt() else 0

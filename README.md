@@ -20,6 +20,9 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
   video/VideoPlayer.kt  ExoPlayer RTSP surface (low-latency tuned)
   input/ControllerProfile.kt  Selectable gamepad mapping presets (add layouts here)
   input/GamepadController.kt  Reads controller events, delegates mapping to the profile
+  ui/theme/             Mass Effect Andromeda / Nomad theme (color, type, shapes)
+  ui/DriveControls.kt   Self-centering touch HUD pads (steering + throttle)
+  ui/Hud.kt             Status cluster, action buttons, no-signal backdrop
   ui/                   Compose control screen + ViewModel
 ```
 
@@ -32,6 +35,7 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
 | Wi-Fi network binding | ✅ Implemented |
 | RTSP video | ✅ Stream confirmed + latency-tuned. Car floor ~200ms (ffplay); app ~500ms glass-to-glass |
 | Gamepad support | ✅ Selectable controller profiles (Single-stick / Stadia dual-stick), persisted; touchscreen always works |
+| UI / theming | ✅ Mass Effect Andromeda / Nomad HUD theme; usable self-centering touch drive pads |
 | Android app build | ✅ Builds and runs on-device |
 | Signing / release build | ⛔ Not set up |
 
