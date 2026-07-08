@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Non-adaptive fallback for API 24-25 (pre adaptive-icon). -->
+    <path android:fillColor="#101418" android:pathData="M0,0 h108 v108 h-108 z" />
+    <path
+        android:fillColor="#33FF66"
+        android:pathData="M40,38 h6 l16,20 v-20 h6 v32 h-6 l-16,-20 v20 h-6 z" />
+</vector>

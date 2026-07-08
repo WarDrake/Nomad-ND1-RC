@@ -1,0 +1,8 @@
+<resources>
+    <!-- Plain dark NoActionBar host theme; Compose Material3 provides the actual UI theming. -->
+    <style name="Theme.NomadND1" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
+    </style>
+</resources>

@@ -1,0 +1,35 @@
+# Android / Gradle
+*.iml
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.hprof
+
+# Keystore / secrets (do not commit signing keys)
+*.jks
+*.keystore
+keystore.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python (test harness)
+tools/__pycache__/
+tools/venv/
+*.pyc
+
+# Reverse-engineering scratch (decompiled sources, extracted apk contents)
+/decompiled/
+/apk-extracted/
+
+# The original firmware APK is large (54 MB) and is a binary reference artifact.
+# It is intentionally NOT committed. Keep a local copy; store in Git LFS or a
+# release asset if you need it in the repo.
+*.apk
