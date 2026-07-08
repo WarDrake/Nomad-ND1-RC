@@ -18,7 +18,8 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
   control/NomadClient.kt UDP socket, handshake, keepalive, 10 Hz drive loop
   net/CarWifiBinder.kt  Binds the socket to the car's no-internet Wi-Fi (Android 10+ fix)
   video/VideoPlayer.kt  ExoPlayer RTSP surface (low-latency tuned)
-  input/GamepadController.kt  Maps gamepad sticks/buttons to car control
+  input/ControllerProfile.kt  Selectable gamepad mapping presets (add layouts here)
+  input/GamepadController.kt  Reads controller events, delegates mapping to the profile
   ui/                   Compose control screen + ViewModel
 ```
 
@@ -30,7 +31,7 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
 | UDP control (connect/drive/LED/telemetry) | ✅ Protocol confirmed on a live car (handshake + battery telemetry working via `nomad_probe.py`) |
 | Wi-Fi network binding | ✅ Implemented |
 | RTSP video | ✅ Stream confirmed + latency-tuned. Car floor ~200ms (ffplay); app ~500ms glass-to-glass |
-| Gamepad support | ✅ Left stick steer · triggers throttle · A/B lights · X cam · Y connect (touchscreen still works) |
+| Gamepad support | ✅ Selectable controller profiles (Single-stick / Stadia dual-stick), persisted; touchscreen always works |
 | Android app build | ✅ Builds and runs on-device |
 | Signing / release build | ⛔ Not set up |
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import us.creativeworks.nomad.control.ConnectionState
 import us.creativeworks.nomad.control.Protocol
+import us.creativeworks.nomad.input.ControllerProfile
 import us.creativeworks.nomad.video.VideoPlayer
 import kotlin.math.roundToInt
 
@@ -109,10 +110,22 @@ fun ControlScreen(vm: ControlViewModel) {
                 )
             }
 
-            Text(
-                "Gamepad: L-stick steer · triggers throttle · A/B lights · X cam · Y connect",
-                color = Color(0xFF888888),
-            )
+            // Controller profile selector
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Controller:", color = Color.White)
+                ControllerProfile.entries.forEach { profile ->
+                    FilterChip(
+                        selected = vm.controllerProfile == profile,
+                        onClick = { vm.setControllerProfile(profile) },
+                        label = { Text(profile.label) },
+                    )
+                }
+            }
+
+            Text(vm.controllerProfile.hint, color = Color(0xFF888888))
         }
     }
 }
