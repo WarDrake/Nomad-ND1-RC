@@ -66,7 +66,7 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
         client.lowerLed(lowerLedOn)
     }
 
-    fun setControllerProfile(profile: ControllerProfile) {
+    fun selectControllerProfile(profile: ControllerProfile) {
         controllerProfile = profile
         prefs.edit().putString(KEY_PROFILE, profile.name).apply()
     }

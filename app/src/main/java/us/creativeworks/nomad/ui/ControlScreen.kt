@@ -119,7 +119,7 @@ fun ControlScreen(vm: ControlViewModel) {
                 ControllerProfile.entries.forEach { profile ->
                     FilterChip(
                         selected = vm.controllerProfile == profile,
-                        onClick = { vm.setControllerProfile(profile) },
+                        onClick = { vm.selectControllerProfile(profile) },
                         label = { Text(profile.label) },
                     )
                 }
