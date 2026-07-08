@@ -11,6 +11,9 @@ local.properties
 .idea/
 *.hprof
 
+# Kotlin build daemon / session cache
+.kotlin/
+
 # Keystore / secrets (do not commit signing keys)
 *.jks
 *.keystore
