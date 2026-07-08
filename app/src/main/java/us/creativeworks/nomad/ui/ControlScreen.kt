@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,9 +31,10 @@ import kotlin.math.roundToInt
 @Composable
 fun ControlScreen(vm: ControlViewModel) {
     val status by vm.client.status.collectAsStateWithLifecycle()
-    var cameraOn by remember { mutableStateOf(false) }
-    var upperLed by remember { mutableStateOf(false) }
-    var lowerLed by remember { mutableStateOf(false) }
+    // Toggle state lives in the ViewModel so the gamepad and these controls stay in sync.
+    val cameraOn = vm.cameraOn
+    val upperLed = vm.upperLedOn
+    val lowerLed = vm.lowerLedOn
 
     // throttle: -SPEED..+SPEED (negative = reverse); steering: 0..STEER_TOTAL_STEP
     var throttle by remember { mutableFloatStateOf(0f) }
@@ -89,25 +89,30 @@ fun ControlScreen(vm: ControlViewModel) {
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val connected = status.connection == ConnectionState.CONNECTED
-                Button(onClick = { if (connected) vm.disconnect() else vm.connect() }) {
+                Button(onClick = { vm.toggleConnection() }) {
                     Text(if (connected) "Disconnect" else "Connect")
                 }
-                Button(onClick = { cameraOn = !cameraOn }, enabled = connected) {
+                Button(onClick = { vm.toggleCamera() }, enabled = connected) {
                     Text(if (cameraOn) "Cam Off" else "Cam On")
                 }
                 FilterChip(
                     selected = upperLed,
-                    onClick = { upperLed = !upperLed; vm.client.upperLed(upperLed) },
+                    onClick = { vm.toggleUpperLed() },
                     label = { Text("Upper LED") },
                     enabled = connected,
                 )
                 FilterChip(
                     selected = lowerLed,
-                    onClick = { lowerLed = !lowerLed; vm.client.lowerLed(lowerLed) },
+                    onClick = { vm.toggleLowerLed() },
                     label = { Text("Lower LED") },
                     enabled = connected,
                 )
             }
+
+            Text(
+                "Gamepad: L-stick steer · triggers throttle · A/B lights · X cam · Y connect",
+                color = Color(0xFF888888),
+            )
         }
     }
 }
