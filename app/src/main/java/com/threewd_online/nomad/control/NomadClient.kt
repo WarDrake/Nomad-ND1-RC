@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.control
+package com.threewd_online.nomad.control
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,7 @@ data class CarStatus(
  * 10 Hz drive stream. See NOMAD-ND1-PROTOCOL.md.
  *
  * @param bindSocket hook that binds the socket to the car's Wi-Fi Network
- *        (see [us.creativeworks.nomad.net.CarWifiBinder]); return false if no
+ *        (see [com.threewd_online.nomad.net.CarWifiBinder]); return false if no
  *        car network is available so we can surface a clear error.
  */
 class NomadClient(

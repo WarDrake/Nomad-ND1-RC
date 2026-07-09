@@ -1,4 +1,4 @@
-package us.creativeworks.nomad
+package com.threewd_online.nomad
 
 import android.Manifest
 import android.os.Build
@@ -13,10 +13,10 @@ import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import us.creativeworks.nomad.input.GamepadController
-import us.creativeworks.nomad.ui.ControlScreen
-import us.creativeworks.nomad.ui.ControlViewModel
-import us.creativeworks.nomad.ui.theme.NomadTheme
+import com.threewd_online.nomad.input.GamepadController
+import com.threewd_online.nomad.ui.ControlScreen
+import com.threewd_online.nomad.ui.ControlViewModel
+import com.threewd_online.nomad.ui.theme.NomadTheme
 
 /**
  * Single-activity Compose host. Requests the Wi-Fi/location permissions needed

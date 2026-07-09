@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.ui
+package com.threewd_online.nomad.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -28,10 +28,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import us.creativeworks.nomad.control.ConnectionState
-import us.creativeworks.nomad.ui.theme.CutCornerHudShape
-import us.creativeworks.nomad.ui.theme.NomadColors
-import us.creativeworks.nomad.ui.theme.NomadType
+import com.threewd_online.nomad.control.ConnectionState
+import com.threewd_online.nomad.ui.theme.CutCornerHudShape
+import com.threewd_online.nomad.ui.theme.NomadColors
+import com.threewd_online.nomad.ui.theme.NomadType
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin

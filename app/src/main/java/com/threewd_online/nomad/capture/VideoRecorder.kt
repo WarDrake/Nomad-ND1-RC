@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.capture
+package com.threewd_online.nomad.capture
 
 import android.graphics.Bitmap
 import android.media.MediaCodec

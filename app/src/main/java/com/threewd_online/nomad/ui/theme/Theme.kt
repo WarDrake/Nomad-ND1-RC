@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.ui.theme
+package com.threewd_online.nomad.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme

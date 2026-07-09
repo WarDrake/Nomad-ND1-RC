@@ -1,9 +1,9 @@
-package us.creativeworks.nomad.audio
+package com.threewd_online.nomad.audio
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
-import us.creativeworks.nomad.R
+import com.threewd_online.nomad.R
 import kotlin.math.abs
 
 /**

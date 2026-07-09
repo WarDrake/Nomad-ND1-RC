@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.input
+package com.threewd_online.nomad.input
 
 import android.view.KeyEvent
 import android.view.MotionEvent

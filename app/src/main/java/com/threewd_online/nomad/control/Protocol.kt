@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.control
+package com.threewd_online.nomad.control
 
 /**
  * Nomad ND1 ("Mako") wire protocol.

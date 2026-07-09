@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.net
+package com.threewd_online.nomad.net
 
 import android.content.Context
 import android.net.ConnectivityManager

@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.video
+package com.threewd_online.nomad.video
 
 import android.view.SurfaceView
 import android.view.ViewGroup
@@ -17,8 +17,8 @@ import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.rtsp.RtspMediaSource
 import androidx.media3.ui.PlayerView
-import us.creativeworks.nomad.capture.CaptureController
-import us.creativeworks.nomad.control.Protocol
+import com.threewd_online.nomad.capture.CaptureController
+import com.threewd_online.nomad.control.Protocol
 
 // --- Low-latency buffer tuning (see KDoc below) ------------------------------
 // For FPV driving, latency matters far more than smoothness, so we buffer the

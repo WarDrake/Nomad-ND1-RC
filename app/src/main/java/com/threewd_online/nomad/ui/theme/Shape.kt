@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.ui.theme
+package com.threewd_online.nomad.ui.theme
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline

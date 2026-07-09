@@ -1,10 +1,10 @@
-package us.creativeworks.nomad.input
+package com.threewd_online.nomad.input
 
 import android.util.Log
 import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
-import us.creativeworks.nomad.ui.ControlViewModel
+import com.threewd_online.nomad.ui.ControlViewModel
 
 /**
  * Translates Android gamepad input into car control, routed through the

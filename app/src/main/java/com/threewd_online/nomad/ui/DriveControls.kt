@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.ui
+package com.threewd_online.nomad.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -20,9 +20,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import us.creativeworks.nomad.ui.theme.CutCornerHudShape
-import us.creativeworks.nomad.ui.theme.NomadColors
-import us.creativeworks.nomad.ui.theme.NomadType
+import com.threewd_online.nomad.ui.theme.CutCornerHudShape
+import com.threewd_online.nomad.ui.theme.NomadColors
+import com.threewd_online.nomad.ui.theme.NomadType
 import kotlin.math.abs
 
 enum class PadAxis { HORIZONTAL, VERTICAL }

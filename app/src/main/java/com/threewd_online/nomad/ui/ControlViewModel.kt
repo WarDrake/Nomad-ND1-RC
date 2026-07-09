@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.ui
+package com.threewd_online.nomad.ui
 
 import android.app.Application
 import android.content.Context
@@ -10,13 +10,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import us.creativeworks.nomad.audio.SoundManager
-import us.creativeworks.nomad.control.ConnectionState
-import us.creativeworks.nomad.control.NomadClient
-import us.creativeworks.nomad.control.Protocol
-import us.creativeworks.nomad.input.ControllerProfile
-import us.creativeworks.nomad.input.GamepadAction
-import us.creativeworks.nomad.net.CarWifiBinder
+import com.threewd_online.nomad.audio.SoundManager
+import com.threewd_online.nomad.control.ConnectionState
+import com.threewd_online.nomad.control.NomadClient
+import com.threewd_online.nomad.control.Protocol
+import com.threewd_online.nomad.input.ControllerProfile
+import com.threewd_online.nomad.input.GamepadAction
+import com.threewd_online.nomad.net.CarWifiBinder
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.roundToInt

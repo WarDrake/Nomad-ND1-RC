@@ -1,4 +1,4 @@
-package us.creativeworks.nomad.ui
+package com.threewd_online.nomad.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,12 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
-import us.creativeworks.nomad.capture.CaptureController
-import us.creativeworks.nomad.control.ConnectionState
-import us.creativeworks.nomad.input.ControllerProfile
-import us.creativeworks.nomad.ui.theme.NomadColors
-import us.creativeworks.nomad.ui.theme.NomadType
-import us.creativeworks.nomad.video.VideoPlayer
+import com.threewd_online.nomad.capture.CaptureController
+import com.threewd_online.nomad.control.ConnectionState
+import com.threewd_online.nomad.input.ControllerProfile
+import com.threewd_online.nomad.ui.theme.NomadColors
+import com.threewd_online.nomad.ui.theme.NomadType
+import com.threewd_online.nomad.video.VideoPlayer
 
 @Composable
 fun ControlScreen(vm: ControlViewModel) {

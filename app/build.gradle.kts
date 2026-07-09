@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "us.creativeworks.nomad"
+    namespace = "com.threewd_online.nomad"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "us.creativeworks.nomad"
+        applicationId = "com.threewd_online.nomad"
         minSdk = 24          // Android 7.0 — covers the Wi-Fi bindSocket() APIs we rely on
         targetSdk = 35
         versionCode = 1
