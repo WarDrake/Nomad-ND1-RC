@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
+import us.creativeworks.nomad.capture.CaptureController
 import us.creativeworks.nomad.control.ConnectionState
 import us.creativeworks.nomad.input.ControllerProfile
 import us.creativeworks.nomad.ui.theme.NomadColors
@@ -39,10 +42,17 @@ fun ControlScreen(vm: ControlViewModel) {
     val connected = status.connection == ConnectionState.CONNECTED
 
     val context = LocalContext.current
+    val capture = remember { CaptureController() }
+    DisposableEffect(Unit) { onDispose { capture.release() } }
+
     var showSetup by remember { mutableStateOf(false) }
     var steer by remember { mutableFloatStateOf(0f) }
     var throttle by remember { mutableFloatStateOf(0f) }
     var wifiSsid by remember { mutableStateOf<String?>(null) }
+
+    fun toast(saved: String?, failMsg: String) {
+        Toast.makeText(context, saved?.let { "Saved $it" } ?: failMsg, Toast.LENGTH_SHORT).show()
+    }
 
     // Poll the current Wi-Fi SSID for connectivity guidance while not driving video.
     LaunchedEffect(Unit) {
@@ -55,7 +65,7 @@ fun ControlScreen(vm: ControlViewModel) {
     Box(Modifier.fillMaxSize().background(NomadColors.Void)) {
         // Background layer: live video when the camera is on, else the HUD backdrop.
         if (vm.cameraOn) {
-            VideoPlayer(Modifier.fillMaxSize())
+            VideoPlayer(Modifier.fillMaxSize(), captureController = capture)
         } else {
             NoSignalBackdrop(
                 state = status.connection,
@@ -112,6 +122,25 @@ fun ControlScreen(vm: ControlViewModel) {
                 .size(width = 118.dp, height = 210.dp),
             onValue = { throttle = it; vm.onTouchDrive(steer, throttle) },
         )
+
+        // Bottom-center: photo/record, only while the live feed is showing.
+        if (connected && vm.cameraOn) {
+            Row(
+                Modifier.align(Alignment.BottomCenter).padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                HudActionButton(
+                    "Photo",
+                    { capture.capturePhoto(context) { toast(it, "Capture failed") } },
+                )
+                HudActionButton(
+                    if (capture.isRecording) "◼ Stop" else "● Rec",
+                    { capture.toggleRecording(context) { toast(it, "Recording failed") } },
+                    active = capture.isRecording,
+                    accent = NomadColors.Crimson,
+                )
+            }
+        }
 
         if (showSetup) {
             SetupOverlay(vm, onClose = { showSetup = false })

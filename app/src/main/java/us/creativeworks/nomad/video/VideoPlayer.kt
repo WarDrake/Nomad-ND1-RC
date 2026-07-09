@@ -1,5 +1,6 @@
 package us.creativeworks.nomad.video
 
+import android.view.SurfaceView
 import android.view.ViewGroup
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
@@ -9,11 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.rtsp.RtspMediaSource
 import androidx.media3.ui.PlayerView
+import us.creativeworks.nomad.capture.CaptureController
 import us.creativeworks.nomad.control.Protocol
 
 // --- Low-latency buffer tuning (see KDoc below) ------------------------------
@@ -48,6 +52,7 @@ fun VideoPlayer(
     modifier: Modifier = Modifier,
     url: String = Protocol.RTSP_URL,
     forceTcp: Boolean = true,
+    captureController: CaptureController? = null,
 ) {
     val context = LocalContext.current
     val player = remember {
@@ -69,13 +74,27 @@ fun VideoPlayer(
                     .setForceUseRtpTcp(forceTcp)
                     .createMediaSource(MediaItem.fromUri(url))
                 setMediaSource(source)
+                // Keep the capture recorder's frame size matched to the real stream.
+                addListener(object : Player.Listener {
+                    override fun onVideoSizeChanged(videoSize: VideoSize) {
+                        captureController?.let {
+                            if (videoSize.width > 0 && videoSize.height > 0) {
+                                it.videoWidth = videoSize.width
+                                it.videoHeight = videoSize.height
+                            }
+                        }
+                    }
+                })
                 prepare()
                 playWhenReady = true
             }
     }
 
     DisposableEffect(Unit) {
-        onDispose { player.release() }
+        onDispose {
+            captureController?.surfaceView = null
+            player.release()
+        }
     }
 
     AndroidView(
@@ -88,6 +107,7 @@ fun VideoPlayer(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                 )
+                captureController?.surfaceView = videoSurfaceView as? SurfaceView
             }
         },
     )

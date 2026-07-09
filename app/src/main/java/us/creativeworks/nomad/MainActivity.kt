@@ -84,6 +84,10 @@ class MainActivity : ComponentActivity() {
             } else {
                 add(Manifest.permission.ACCESS_FINE_LOCATION)
             }
+            // Saving captures on pre-Android-10 needs storage permission.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
         }.toTypedArray()
         permLauncher.launch(perms)
     }

@@ -36,6 +36,7 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
 | RTSP video | ✅ Stream confirmed + latency-tuned. Car floor ~200ms (ffplay); app ~500ms glass-to-glass |
 | Gamepad support | ✅ Selectable controller profiles (Single-stick / Stadia dual-stick), persisted; touchscreen always works |
 | UI / theming | ✅ Mass Effect Andromeda / Nomad HUD theme; usable self-centering touch drive pads |
+| Photo / video capture | ✅ Still + MP4 capture of the feed (PixelCopy → MediaCodec) to DCIM/NOMAD_ND1 |
 | Android app build | ✅ Builds and runs on-device |
 | Signing / release build | ⛔ Not set up |
 

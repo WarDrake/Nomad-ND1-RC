@@ -16,6 +16,11 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="33" />
 
+    <!-- Saving captures to the gallery needs no permission on Android 10+; older
+         versions write through the legacy path. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
     <!-- Gamepad is optional; the touchscreen controls always work. -->
     <uses-feature android:name="android.hardware.gamepad" android:required="false" />
 
