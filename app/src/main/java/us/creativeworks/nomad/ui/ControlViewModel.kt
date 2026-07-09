@@ -136,6 +136,15 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
 
     fun isCarNetwork(ssid: String?): Boolean = ssid?.contains(Protocol.SSID_PREFIX) == true
 
+    /** Current Wi-Fi RSSI in dBm for the signal meter, or null if unavailable. */
+    fun currentRssi(): Int? {
+        val wm = getApplication<Application>()
+            .getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return null
+        @Suppress("DEPRECATION")
+        val rssi = wm.connectionInfo?.rssi ?: return null
+        return if (rssi == 0 || rssi <= -100 || rssi == -127) null else rssi
+    }
+
     private fun pushDrive(steer: Float, forward: Float, reverse: Float) {
         val steerLevel = client.steerCenter + (steer.coerceIn(-1f, 1f) * (Protocol.STEER_TOTAL_STEP / 2)).roundToInt()
         val net = forward - reverse

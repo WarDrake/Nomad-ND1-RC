@@ -86,22 +86,68 @@ fun HudActionButton(
     }
 }
 
-/** Connection state + battery + firmware readout cluster. */
+/** Connection state + signal + battery + firmware readout cluster. */
 @Composable
 fun StatusCluster(
     state: ConnectionState,
     battery: Int?,
     firmware: String?,
+    rssi: Int?,
     modifier: Modifier = Modifier,
 ) {
     HudPanel(modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ConnectionChip(state)
+            if (rssi != null) SignalMeter(rssi)
             BatteryGauge(battery)
             Text(
                 "FW ${firmware ?: "----"}",
                 style = NomadType.Label.copy(fontSize = 10.sp),
             )
+        }
+    }
+}
+
+/** dBm -> 0..4 signal bars. */
+private fun signalLevel(rssi: Int): Int = when {
+    rssi >= -55 -> 4
+    rssi >= -67 -> 3
+    rssi >= -75 -> 2
+    rssi >= -85 -> 1
+    else -> 0
+}
+
+@Composable
+private fun SignalMeter(rssi: Int) {
+    val level = signalLevel(rssi)
+    val color = when {
+        level <= 1 -> NomadColors.Crimson
+        level == 2 -> NomadColors.Amber
+        else -> NomadColors.Cyan
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text("SIG", style = NomadType.Label)
+        Canvas(Modifier.size(width = 40.dp, height = 14.dp)) {
+            val bars = 4
+            val gap = 3f
+            val barW = (size.width - gap * (bars - 1)) / bars
+            for (i in 0 until bars) {
+                val h = size.height * (0.4f + 0.2f * i)
+                val x = i * (barW + gap)
+                val filled = i < level
+                drawRect(
+                    if (filled) color else NomadColors.CyanDim.copy(alpha = 0.4f),
+                    topLeft = Offset(x, size.height - h),
+                    size = Size(barW, h),
+                )
+            }
+        }
+        Text("$rssi", style = NomadType.Value.copy(fontSize = 13.sp, color = color))
+        if (level <= 1) {
+            Text("WEAK", style = NomadType.Label.copy(color = NomadColors.Crimson, fontSize = 10.sp))
         }
     }
 }
@@ -126,8 +172,10 @@ private fun ConnectionChip(state: ConnectionState) {
 @Composable
 private fun BatteryGauge(level: Int?) {
     val frac = ((level ?: 0) / 100f).coerceIn(0f, 1f)
+    val critical = level != null && frac < 0.12f
     val color = when {
         level == null -> NomadColors.TextLo
+        critical -> NomadColors.Crimson
         frac < 0.25f -> NomadColors.Amber
         else -> NomadColors.Cyan
     }
@@ -149,6 +197,9 @@ private fun BatteryGauge(level: Int?) {
             drawRect(NomadColors.CyanDim, size = size, style = Stroke(width = 1.5f))
         }
         Text(level?.toString() ?: "--", style = NomadType.Value.copy(fontSize = 16.sp, color = color))
+        if (critical) {
+            Text("LOW", style = NomadType.Label.copy(color = NomadColors.Crimson, fontSize = 10.sp))
+        }
     }
 }
 

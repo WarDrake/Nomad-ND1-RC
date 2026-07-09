@@ -49,16 +49,18 @@ fun ControlScreen(vm: ControlViewModel) {
     var steer by remember { mutableFloatStateOf(0f) }
     var throttle by remember { mutableFloatStateOf(0f) }
     var wifiSsid by remember { mutableStateOf<String?>(null) }
+    var wifiRssi by remember { mutableStateOf<Int?>(null) }
 
     fun toast(saved: String?, failMsg: String) {
         Toast.makeText(context, saved?.let { "Saved $it" } ?: failMsg, Toast.LENGTH_SHORT).show()
     }
 
-    // Poll the current Wi-Fi SSID for connectivity guidance while not driving video.
+    // Poll Wi-Fi SSID (connectivity guidance) and RSSI (signal meter).
     LaunchedEffect(Unit) {
         while (true) {
             wifiSsid = vm.currentWifiSsid()
-            delay(2000)
+            wifiRssi = vm.currentRssi()
+            delay(1500)
         }
     }
 
@@ -85,6 +87,7 @@ fun ControlScreen(vm: ControlViewModel) {
             state = status.connection,
             battery = status.battery,
             firmware = status.firmware,
+            rssi = wifiRssi,
             modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
         )
 
