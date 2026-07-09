@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Legacy round icon for API 24-25: dark background + Nomad logo (transparent corners). -->
+<!-- Legacy round icon for API 24-25: dark background + Nomad rover. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@drawable/ic_launcher_background" />
-    <item android:drawable="@drawable/nomad_logo" android:gravity="center" />
+    <item android:drawable="@drawable/ic_launcher_foreground" />
 </layer-list>
