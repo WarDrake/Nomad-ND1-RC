@@ -134,11 +134,17 @@ fun ControlScreen(vm: ControlViewModel) {
             ) {
                 HudActionButton(
                     "Photo",
-                    { capture.capturePhoto(context) { toast(it, "Capture failed") } },
+                    {
+                        vm.playPhotoCue()
+                        capture.capturePhoto(context) { toast(it, "Capture failed") }
+                    },
                 )
                 HudActionButton(
                     if (capture.isRecording) "◼ Stop" else "● Rec",
-                    { capture.toggleRecording(context) { toast(it, "Recording failed") } },
+                    {
+                        vm.playRecordCue()
+                        capture.toggleRecording(context) { toast(it, "Recording failed") }
+                    },
                     active = capture.isRecording,
                     accent = NomadColors.Crimson,
                 )
@@ -188,6 +194,22 @@ private fun SetupOverlay(vm: ControlViewModel, onClose: () -> Unit) {
                     "Correct a car that pulls to one side.",
                     style = NomadType.Label.copy(fontSize = 11.sp),
                 )
+
+                Text("Audio".uppercase(), style = NomadType.Title)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    HudActionButton(
+                        if (vm.soundEnabled) "Sound On" else "Sound Off",
+                        { vm.toggleSound() },
+                        active = vm.soundEnabled,
+                    )
+                    Text(
+                        "Engine drone + UI cues.",
+                        style = NomadType.Label.copy(fontSize = 11.sp),
+                    )
+                }
 
                 HudActionButton("Close", onClose)
             }

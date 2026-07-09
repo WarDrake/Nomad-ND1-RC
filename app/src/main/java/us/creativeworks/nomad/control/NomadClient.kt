@@ -47,6 +47,7 @@ class NomadClient(
     private var rxJob: Job? = null
     private var battJob: Job? = null
     private var driveJob: Job? = null
+    private var establishJob: Job? = null
 
     private val _status = MutableStateFlow(CarStatus())
     val status: StateFlow<CarStatus> = _status.asStateFlow()
@@ -63,11 +64,13 @@ class NomadClient(
     // --- Public control surface ----------------------------------------------
 
     fun connect() {
-        if (_status.value.connection == ConnectionState.CONNECTING) return
-        scope.launch { runConnect() }
+        establishJob?.cancel()
+        establishJob = scope.launch { establish() }
     }
 
     fun disconnect() {
+        establishJob?.cancel()
+        establishJob = null
         scope.launch {
             runCatching { sendString(Protocol.MAKO_DISCONNECT) }
             teardown(ConnectionState.DISCONNECTED)
@@ -102,8 +105,24 @@ class NomadClient(
 
     // --- Session lifecycle ---------------------------------------------------
 
-    private suspend fun runConnect() {
+    /** Connect (or reconnect), retrying the handshake a few times before failing. */
+    private suspend fun establish() {
         teardown(ConnectionState.CONNECTING)
+        for (attempt in 1..MAX_HANDSHAKE_TRIES) {
+            if (handshakeOnce()) {
+                onConnected()
+                return
+            }
+            Log.w(TAG, "Handshake attempt $attempt/$MAX_HANDSHAKE_TRIES got no reply")
+            delay(RECONNECT_DELAY_MS)
+        }
+        teardown(ConnectionState.FAILED)
+    }
+
+    /** One handshake: bind, burst MAKO_CONNECT, wait for a reply. Keeps the socket on success. */
+    private suspend fun handshakeOnce(): Boolean {
+        rxJob?.cancel()
+        closeSocket()
         val sock = DatagramSocket(null as java.net.SocketAddress?).apply {
             reuseAddress = true
             // Bind to the car's Wi-Fi BEFORE binding the local port so traffic routes correctly.
@@ -129,11 +148,14 @@ class NomadClient(
         while (System.currentTimeMillis() < deadline && lastReplyAt == 0L) delay(100)
 
         if (lastReplyAt == 0L) {
-            Log.w(TAG, "No reply within ${Protocol.CONNECT_WAIT_MS}ms — connection failed")
-            teardown(ConnectionState.FAILED)
-            return
+            rxJob?.cancel()
+            closeSocket()
+            return false
         }
+        return true
+    }
 
+    private suspend fun onConnected() {
         _status.value = _status.value.copy(connection = ConnectionState.CONNECTED)
         steering = steerCenter
         runCatching { send(Protocol.center(steering)) }
@@ -174,12 +196,14 @@ class NomadClient(
         battJob = scope.launch {
             while (isActive) {
                 runCatching { sendString(Protocol.MAKO_READ_BATT) }
-                // Keepalive watchdog: no reply for 60s => dead.
+                // Keepalive watchdog: no reply for 60s => the link dropped. Rather
+                // than giving up, re-run the handshake so a transient Wi-Fi glitch
+                // recovers on its own (car reboots, walked out of range briefly, etc).
                 if (lastReplyAt != 0L &&
                     System.currentTimeMillis() - lastReplyAt > Protocol.KEEPALIVE_TIMEOUT_MS
                 ) {
-                    Log.w(TAG, "Keepalive timeout — lost connection")
-                    teardown(ConnectionState.FAILED)
+                    Log.w(TAG, "Keepalive timeout — link lost, attempting auto-reconnect")
+                    establishJob = scope.launch { establish() }
                     return@launch
                 }
                 delay(Protocol.BATTERY_POLL_MS)
@@ -230,5 +254,7 @@ class NomadClient(
 
     companion object {
         private const val TAG = "NomadClient"
+        private const val MAX_HANDSHAKE_TRIES = 3
+        private const val RECONNECT_DELAY_MS = 800L
     }
 }

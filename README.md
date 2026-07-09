@@ -13,6 +13,7 @@ decompiling the original APK — is documented in **[NOMAD-ND1-PROTOCOL.md](NOMA
 ```
 NOMAD-ND1-PROTOCOL.md   Full reverse-engineered protocol spec (authoritative reference)
 tools/nomad_probe.py    Python UDP test harness — drive/diagnose the car from a laptop
+tools/synth_sfx.py      Regenerates the original synthesized sound effects into res/raw
 app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
   control/Protocol.kt   Command builders + reply decoder (the protocol, in code)
   control/NomadClient.kt UDP socket, handshake, keepalive, 10 Hz drive loop
@@ -20,6 +21,7 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
   video/VideoPlayer.kt  ExoPlayer RTSP surface (low-latency tuned)
   input/ControllerProfile.kt  Selectable gamepad mapping presets (add layouts here)
   input/GamepadController.kt  Reads controller events, delegates mapping to the profile
+  audio/SoundManager.kt  SoundPool engine loop + UI cues (original synthesized audio)
   ui/theme/             Mass Effect Andromeda / Nomad theme (color, type, shapes)
   ui/DriveControls.kt   Self-centering touch HUD pads (steering + throttle)
   ui/Hud.kt             Status cluster, action buttons, no-signal backdrop
@@ -37,6 +39,10 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
 | Gamepad support | ✅ Selectable controller profiles (Single-stick / Stadia dual-stick), persisted; touchscreen always works |
 | UI / theming | ✅ Mass Effect Andromeda / Nomad HUD theme; usable self-centering touch drive pads |
 | Photo / video capture | ✅ Still + MP4 capture of the feed (PixelCopy → MediaCodec) to DCIM/NOMAD_ND1 |
+| Telemetry HUD | ✅ Signal-strength meter + low-battery warning alongside link state / firmware |
+| Auto-reconnect | ✅ Re-runs the handshake on a transient link drop instead of dropping to FAILED |
+| Throttle response curve | ✅ Exponential expo curve for fine low-speed control (a curve, not a speed limiter) |
+| Sound | ✅ Original synthesized engine drone (throttle-tracked) + UI cues; mute toggle in Setup (`tools/synth_sfx.py`) |
 | Android app build | ✅ Builds and runs on-device |
 | Signing / release build | ⛔ Not set up |
 
