@@ -154,10 +154,20 @@ private fun BatteryGauge(level: Int?) {
 
 /**
  * Full-screen backdrop shown when there's no live video: a dark hex vignette
- * with an Andromeda-style hexagon reticle and a context prompt.
+ * with an Andromeda-style hexagon reticle. When disconnected it also guides the
+ * user onto the car's Wi-Fi (the usual reason Connect fails).
+ *
+ * @param ssid current Wi-Fi SSID if known (null = unreadable on this OS/perms).
+ * @param onCarNetwork whether [ssid] looks like the car's AP.
  */
 @Composable
-fun NoSignalBackdrop(state: ConnectionState, modifier: Modifier = Modifier) {
+fun NoSignalBackdrop(
+    state: ConnectionState,
+    ssid: String?,
+    onCarNetwork: Boolean,
+    onOpenWifiSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier.background(NomadColors.Void), contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             drawRect(
@@ -173,15 +183,26 @@ fun NoSignalBackdrop(state: ConnectionState, modifier: Modifier = Modifier) {
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text("NOMAD ND1", style = NomadType.Title.copy(fontSize = 28.sp, letterSpacing = 10.sp))
-            val prompt = when (state) {
-                ConnectionState.CONNECTED -> "CAMERA OFFLINE · ENABLE CAM FOR VIDEO"
-                ConnectionState.CONNECTING -> "ESTABLISHING LINK"
-                else -> "NO VEHICLE LINK · CONNECT TO DRIVE"
+
+            if (state == ConnectionState.CONNECTED) {
+                // Connected but camera off.
+                Text("CAMERA OFFLINE · ENABLE CAM FOR VIDEO", style = NomadType.Label.copy(fontSize = 12.sp))
+            } else {
+                val (netText, netColor) = when {
+                    onCarNetwork -> "VEHICLE NETWORK: $ssid · TAP CONNECT" to NomadColors.Cyan
+                    ssid != null -> "WI-FI: $ssid · NOT THE VEHICLE NETWORK" to NomadColors.Amber
+                    else -> "JOIN WI-FI “NOMAD_ND1-…” THEN TAP CONNECT" to NomadColors.TextLo
+                }
+                val prompt = if (state == ConnectionState.CONNECTING) "ESTABLISHING LINK" else netText
+                val promptColor = if (state == ConnectionState.CONNECTING) NomadColors.Amber else netColor
+                Text(prompt, style = NomadType.Label.copy(fontSize = 12.sp, color = promptColor))
+                if (state != ConnectionState.CONNECTING && !onCarNetwork) {
+                    HudActionButton("Wi-Fi Settings", onOpenWifiSettings)
+                }
             }
-            Text(prompt, style = NomadType.Label.copy(fontSize = 12.sp))
         }
     }
 }

@@ -2,6 +2,7 @@ package us.creativeworks.nomad.ui
 
 import android.app.Application
 import android.content.Context
+import android.net.wifi.WifiManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -98,6 +99,23 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
         val reverse = if (throttle < 0f) -throttle else 0f
         pushDrive(steer, forward, reverse)
     }
+
+    /** Immediately command neutral (used when the app backgrounds). Keeps the link. */
+    fun stopDrive() = client.stop()
+
+    /**
+     * Best-effort current Wi-Fi SSID for connectivity guidance, or null if it
+     * can't be read (permissions / OS restrictions on newer Android).
+     */
+    fun currentWifiSsid(): String? {
+        val wm = getApplication<Application>()
+            .getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return null
+        @Suppress("DEPRECATION")
+        val raw = wm.connectionInfo?.ssid?.trim('"') ?: return null
+        return if (raw.isBlank() || raw.contains("unknown", ignoreCase = true)) null else raw
+    }
+
+    fun isCarNetwork(ssid: String?): Boolean = ssid?.contains(Protocol.SSID_PREFIX) == true
 
     private fun pushDrive(steer: Float, forward: Float, reverse: Float) {
         val steerLevel = client.steerCenter + (steer.coerceIn(-1f, 1f) * (Protocol.STEER_TOTAL_STEP / 2)).roundToInt()

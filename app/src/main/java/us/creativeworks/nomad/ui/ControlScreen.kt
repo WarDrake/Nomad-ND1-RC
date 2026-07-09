@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,9 +22,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
 import us.creativeworks.nomad.control.ConnectionState
 import us.creativeworks.nomad.input.ControllerProfile
 import us.creativeworks.nomad.ui.theme.NomadColors
@@ -33,16 +38,36 @@ fun ControlScreen(vm: ControlViewModel) {
     val status by vm.client.status.collectAsStateWithLifecycle()
     val connected = status.connection == ConnectionState.CONNECTED
 
+    val context = LocalContext.current
     var showSetup by remember { mutableStateOf(false) }
     var steer by remember { mutableFloatStateOf(0f) }
     var throttle by remember { mutableFloatStateOf(0f) }
+    var wifiSsid by remember { mutableStateOf<String?>(null) }
+
+    // Poll the current Wi-Fi SSID for connectivity guidance while not driving video.
+    LaunchedEffect(Unit) {
+        while (true) {
+            wifiSsid = vm.currentWifiSsid()
+            delay(2000)
+        }
+    }
 
     Box(Modifier.fillMaxSize().background(NomadColors.Void)) {
         // Background layer: live video when the camera is on, else the HUD backdrop.
         if (vm.cameraOn) {
             VideoPlayer(Modifier.fillMaxSize())
         } else {
-            NoSignalBackdrop(status.connection, Modifier.fillMaxSize())
+            NoSignalBackdrop(
+                state = status.connection,
+                ssid = wifiSsid,
+                onCarNetwork = vm.isCarNetwork(wifiSsid),
+                onOpenWifiSettings = {
+                    context.startActivity(
+                        Intent(Settings.ACTION_WIFI_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
         }
 
         // Top-left: telemetry.

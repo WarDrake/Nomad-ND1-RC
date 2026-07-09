@@ -5,10 +5,14 @@ import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import us.creativeworks.nomad.input.GamepadController
 import us.creativeworks.nomad.ui.ControlScreen
 import us.creativeworks.nomad.ui.ControlViewModel
@@ -31,12 +35,34 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Never let the screen sleep while driving.
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enterImmersive()
         requestWifiPermissions()
         setContent {
             NomadTheme {
                 ControlScreen(vm)
             }
         }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) enterImmersive() // immersive is dropped on focus loss; restore it
+    }
+
+    /** Safety: stop the car if the app leaves the foreground (keeps the link alive). */
+    override fun onPause() {
+        super.onPause()
+        vm.stopDrive()
+    }
+
+    private fun enterImmersive() {
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
     // Analog sticks / triggers arrive as joystick MotionEvents.
