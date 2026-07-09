@@ -51,13 +51,18 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
     var steerCenter by mutableStateOf(prefs.getInt(KEY_TRIM, Protocol.STEER_CENTER_DEFAULT))
         private set
 
-    /** Master toggle for engine + UI audio, persisted. */
-    var soundEnabled by mutableStateOf(prefs.getBoolean(KEY_SOUND, true))
+    /** Engine drone toggle (drive sounds), persisted. */
+    var driveSoundEnabled by mutableStateOf(prefs.getBoolean(KEY_DRIVE_SOUND, true))
+        private set
+
+    /** UI cue toggle (app sounds: connect, LED, trim, capture), persisted. */
+    var appSoundEnabled by mutableStateOf(prefs.getBoolean(KEY_APP_SOUND, true))
         private set
 
     init {
         client.steerCenter = steerCenter
-        sound.enabled = soundEnabled
+        sound.engineEnabled = driveSoundEnabled
+        sound.uiEnabled = appSoundEnabled
         // Start listening for the car's Wi-Fi network immediately.
         wifi.request(onAvailable = { /* available; connect() will bind on demand */ })
         // Drive audio off the real connection state so cues fire for auto-reconnects
@@ -107,14 +112,20 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
         if (lowerLedOn) sound.ledOn() else sound.ledOff()
     }
 
-    fun toggleSound() {
-        soundEnabled = !soundEnabled
-        sound.enabled = soundEnabled
+    fun toggleDriveSound() {
+        driveSoundEnabled = !driveSoundEnabled
+        sound.engineEnabled = driveSoundEnabled
         // Resume the idle drone immediately if we un-muted while connected.
-        if (soundEnabled && client.status.value.connection == ConnectionState.CONNECTED) {
+        if (driveSoundEnabled && client.status.value.connection == ConnectionState.CONNECTED) {
             sound.startEngine()
         }
-        prefs.edit().putBoolean(KEY_SOUND, soundEnabled).apply()
+        prefs.edit().putBoolean(KEY_DRIVE_SOUND, driveSoundEnabled).apply()
+    }
+
+    fun toggleAppSound() {
+        appSoundEnabled = !appSoundEnabled
+        sound.uiEnabled = appSoundEnabled
+        prefs.edit().putBoolean(KEY_APP_SOUND, appSoundEnabled).apply()
     }
 
     /** UI hooks for the capture buttons so photo/record share the audio layer. */
@@ -228,7 +239,8 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
         const val PREFS = "nomad_prefs"
         const val KEY_PROFILE = "controller_profile"
         const val KEY_TRIM = "steer_center"
-        const val KEY_SOUND = "sound_enabled"
+        const val KEY_DRIVE_SOUND = "drive_sound_enabled"
+        const val KEY_APP_SOUND = "app_sound_enabled"
         const val TRIM_STEP = 2
         const val TRIM_MIN = Protocol.STEER_CENTER_DEFAULT - 30 // 98
         const val TRIM_MAX = Protocol.STEER_CENTER_DEFAULT + 30 // 158

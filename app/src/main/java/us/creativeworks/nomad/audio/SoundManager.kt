@@ -46,8 +46,11 @@ class SoundManager(context: Context) {
     private var engineSoundId = 0
     private var engineStreamId = 0
 
-    /** When false, no cue plays and the engine loop is silenced. */
-    @Volatile var enabled: Boolean = true
+    /** Gates the one-shot UI cues (connect, LED, trim, capture). */
+    @Volatile var uiEnabled: Boolean = true
+
+    /** Gates the looping engine drone. Turning it off silences the loop at once. */
+    @Volatile var engineEnabled: Boolean = true
         set(value) {
             field = value
             if (!value) stopEngine()
@@ -81,7 +84,7 @@ class SoundManager(context: Context) {
     fun record() = play(Cue.REC)
 
     private fun play(cue: Cue, volume: Float = 0.9f, rate: Float = 1f) {
-        if (!enabled) return
+        if (!uiEnabled) return
         val id = soundIds[cue] ?: return
         if (id !in loaded) return  // still loading; skip rather than glitch
         pool.play(id, volume, volume, 1, 0, rate)
@@ -91,7 +94,7 @@ class SoundManager(context: Context) {
 
     /** Begin the looping engine drone (idempotent). No-op while muted. */
     fun startEngine() {
-        if (!enabled) return
+        if (!engineEnabled) return
         engineWanted = true
         if (engineStreamId == 0) startEngineNow()
     }
@@ -116,7 +119,7 @@ class SoundManager(context: Context) {
      * absolute value of forward/reverse). Louder and higher-pitched under power.
      */
     fun setEngineThrottle(magnitude: Float) {
-        if (!enabled || engineStreamId == 0) return
+        if (!engineEnabled || engineStreamId == 0) return
         val m = abs(magnitude).coerceIn(0f, 1f)
         val rate = IDLE_RATE + (MAX_RATE - IDLE_RATE) * m
         val vol = IDLE_VOL + (MAX_VOL - IDLE_VOL) * m

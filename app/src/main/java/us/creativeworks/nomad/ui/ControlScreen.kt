@@ -1,6 +1,10 @@
 package us.creativeworks.nomad.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,12 +163,28 @@ fun ControlScreen(vm: ControlViewModel) {
 
 @Composable
 private fun SetupOverlay(vm: ControlViewModel, onClose: () -> Unit) {
+    // Tapping the dimmed scrim dismisses; taps on the panel itself are swallowed
+    // so they never fall through and close it accidentally.
+    val dismiss = remember { MutableInteractionSource() }
+    val swallow = remember { MutableInteractionSource() }
     Box(
-        Modifier.fillMaxSize().background(Color(0xCC000814)),
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xCC000814))
+            .clickable(interactionSource = dismiss, indication = null, onClick = onClose),
         contentAlignment = Alignment.Center,
     ) {
-        HudPanel(Modifier.widthIn(max = 560.dp).padding(24.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        HudPanel(
+            Modifier
+                .widthIn(max = 560.dp)
+                .padding(24.dp)
+                .clickable(interactionSource = swallow, indication = null, onClick = {}),
+        ) {
+            // Scroll so the full panel — and Close — is always reachable in landscape.
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
                 Text("Controller Profile".uppercase(), style = NomadType.Title)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     ControllerProfile.entries.forEach { profile ->
@@ -201,15 +221,20 @@ private fun SetupOverlay(vm: ControlViewModel, onClose: () -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     HudActionButton(
-                        if (vm.soundEnabled) "Sound On" else "Sound Off",
-                        { vm.toggleSound() },
-                        active = vm.soundEnabled,
+                        if (vm.driveSoundEnabled) "Drive On" else "Drive Off",
+                        { vm.toggleDriveSound() },
+                        active = vm.driveSoundEnabled,
                     )
-                    Text(
-                        "Engine drone + UI cues.",
-                        style = NomadType.Label.copy(fontSize = 11.sp),
+                    HudActionButton(
+                        if (vm.appSoundEnabled) "App On" else "App Off",
+                        { vm.toggleAppSound() },
+                        active = vm.appSoundEnabled,
                     )
                 }
+                Text(
+                    "Drive = engine drone. App = UI cues (connect, LED, capture).",
+                    style = NomadType.Label.copy(fontSize = 11.sp),
+                )
 
                 HudActionButton("Close", onClose)
             }

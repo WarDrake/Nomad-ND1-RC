@@ -36,6 +36,10 @@ video_log
 /decompiled/
 /apk-extracted/
 
+# Original app's copyrighted audio, extracted for local A/B review only.
+# Must NEVER reach a remote — the shipped app uses original synthesized audio.
+/original-sounds/
+
 # The original firmware APK is large (54 MB) and is a binary reference artifact.
 # It is intentionally NOT committed. Keep a local copy; store in Git LFS or a
 # release asset if you need it in the repo.
