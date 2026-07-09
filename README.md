@@ -1,5 +1,7 @@
 # Nomad ND1 — modern control app
 
+[![build](https://github.com/WarDrake/Nomad-ND1-RC/actions/workflows/build.yml/badge.svg)](https://github.com/WarDrake/Nomad-ND1-RC/actions/workflows/build.yml)
+
 A ground-up rebuild of the control app for the **Nomad ND1** collector's-edition RC car,
 replacing the original `com.pdp.MEAndromeda` APK (targetSdk 16, 32-bit only) that no longer
 installs on modern Android.
@@ -7,6 +9,16 @@ installs on modern Android.
 The car ("Mako" internally) is a Wi-Fi access point. The phone joins the car's Wi-Fi and
 controls it over UDP; video is an RTSP stream. The full wire protocol — recovered by
 decompiling the original APK — is documented in **[NOMAD-ND1-PROTOCOL.md](NOMAD-ND1-PROTOCOL.md)**.
+
+## Screenshots
+
+| Control HUD | Setup |
+|---|---|
+| ![Control HUD](docs/screenshots/control-hud.png) | ![Setup panel](docs/screenshots/setup-panel.png) |
+
+The Mass Effect Andromeda / Nomad-themed HUD: signal + battery telemetry, self-centering
+steering and throttle pads, and a Setup panel for controller profile, steering trim, and
+independent drive/app audio toggles.
 
 ## Repo layout
 
