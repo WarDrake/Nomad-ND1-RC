@@ -1,10 +1,6 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:fillColor="#101418" android:pathData="M54,4 A50,50 0 1 1 53.99,4 z" />
-    <path
-        android:fillColor="#33FF66"
-        android:pathData="M40,38 h6 l16,20 v-20 h6 v32 h-6 l-16,-20 v20 h-6 z" />
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Legacy round icon for API 24-25: dark background + Nomad logo (transparent corners). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_launcher_background" />
+    <item android:drawable="@drawable/nomad_logo" android:gravity="center" />
+</layer-list>

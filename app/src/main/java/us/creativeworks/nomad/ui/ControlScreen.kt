@@ -138,8 +138,33 @@ private fun SetupOverlay(vm: ControlViewModel, onClose: () -> Unit) {
                     }
                 }
                 Text(vm.controllerProfile.hint, style = NomadType.Label.copy(fontSize = 11.sp))
+
+                Text("Steering Trim".uppercase(), style = NomadType.Title)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    HudActionButton("◄ Left", { vm.trimLeft() })
+                    Text(
+                        trimLabel(vm.steerTrimOffset),
+                        style = NomadType.Value.copy(fontSize = 16.sp),
+                    )
+                    HudActionButton("Right ►", { vm.trimRight() })
+                    HudActionButton("Center", { vm.trimReset() })
+                }
+                Text(
+                    "Correct a car that pulls to one side.",
+                    style = NomadType.Label.copy(fontSize = 11.sp),
+                )
+
                 HudActionButton("Close", onClose)
             }
         }
     }
+}
+
+private fun trimLabel(offset: Int): String = when {
+    offset < 0 -> "L ${-offset}"
+    offset > 0 -> "R $offset"
+    else -> "CENTER"
 }

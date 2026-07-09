@@ -3,5 +3,6 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:fillColor="#101418" android:pathData="M0,0 h108 v108 h-108 z" />
+    <!-- Solid dark teal-black, matching the app's Void background. -->
+    <path android:fillColor="#04100E" android:pathData="M0,0 h108 v108 h-108 z" />
 </vector>

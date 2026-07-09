@@ -41,7 +41,12 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
     )
         private set
 
+    /** Steering center (trim), persisted. 128 = neutral; adjust to correct pull. */
+    var steerCenter by mutableStateOf(prefs.getInt(KEY_TRIM, Protocol.STEER_CENTER_DEFAULT))
+        private set
+
     init {
+        client.steerCenter = steerCenter
         // Start listening for the car's Wi-Fi network immediately.
         wifi.request(onAvailable = { /* available; connect() will bind on demand */ })
     }
@@ -103,6 +108,20 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
     /** Immediately command neutral (used when the app backgrounds). Keeps the link. */
     fun stopDrive() = client.stop()
 
+    /** Steering trim as a signed offset from center (negative = left). */
+    val steerTrimOffset: Int get() = steerCenter - Protocol.STEER_CENTER_DEFAULT
+
+    fun trimLeft() = applyTrim(steerCenter - TRIM_STEP)
+    fun trimRight() = applyTrim(steerCenter + TRIM_STEP)
+    fun trimReset() = applyTrim(Protocol.STEER_CENTER_DEFAULT)
+
+    private fun applyTrim(value: Int) {
+        steerCenter = value.coerceIn(TRIM_MIN, TRIM_MAX)
+        client.steerCenter = steerCenter
+        client.stop() // recenter the wheels to the new trim immediately
+        prefs.edit().putInt(KEY_TRIM, steerCenter).apply()
+    }
+
     /**
      * Best-effort current Wi-Fi SSID for connectivity guidance, or null if it
      * can't be read (permissions / OS restrictions on newer Android).
@@ -134,5 +153,9 @@ class ControlViewModel(app: Application) : AndroidViewModel(app) {
         const val STEER_DEADZONE = 0.12f
         const val PREFS = "nomad_prefs"
         const val KEY_PROFILE = "controller_profile"
+        const val KEY_TRIM = "steer_center"
+        const val TRIM_STEP = 2
+        const val TRIM_MIN = Protocol.STEER_CENTER_DEFAULT - 30 // 98
+        const val TRIM_MAX = Protocol.STEER_CENTER_DEFAULT + 30 // 158
     }
 }
