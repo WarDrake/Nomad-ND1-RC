@@ -44,7 +44,7 @@ app/                    Android app (Kotlin, Compose, Media3/ExoPlayer)
 | Throttle response curve | ✅ Exponential expo curve for fine low-speed control (a curve, not a speed limiter) |
 | Sound | ✅ Original synthesized engine drone (throttle-tracked) + UI cues; mute toggle in Setup (`tools/synth_sfx.py`) |
 | Android app build | ✅ Builds and runs on-device |
-| Signing / release build | ⛔ Not set up |
+| Signing / release build | ✅ CI-signed release APKs published to GitHub Releases on tag push |
 
 ### Testing against the car (both paths now confirmed working)
 
@@ -69,17 +69,18 @@ It is a standard LIVE555 H.264 640×480@25fps stream (see `video_log` and
 NOMAD-ND1-PROTOCOL.md §6). The car does **not** serve UDP RTP reliably, so the client must
 force RTP-over-TCP — which the app does. No custom decoder required.
 
+## Installing
+
+Grab the latest signed APK from the [Releases](https://github.com/WarDrake/Nomad-ND1-RC/releases)
+page and sideload it (enable "install unknown apps" for your browser/file manager).
+For one-tap auto-updates, add the repo to [Obtainium](https://github.com/ImranR98/Obtainium).
+
 ## Building the Android app
 
 Requires **Android Studio (Ladybug/2024.2+)** or a local Android SDK with JDK 17.
 
 ```bash
-# The Gradle wrapper JAR is not committed. Generate it once (or just open in Android Studio,
-# which does this automatically):
-gradle wrapper --gradle-version 8.11.1
-
-# Then:
-./gradlew assembleDebug          # build APK
+./gradlew assembleDebug          # build debug APK
 ./gradlew installDebug           # install on a connected device
 ```
 
@@ -87,6 +88,9 @@ Create `local.properties` pointing at your SDK (Android Studio writes this for y
 ```
 sdk.dir=/path/to/Android/Sdk
 ```
+
+CI (GitHub Actions) builds a debug APK on every push and publishes a **signed**
+release APK to GitHub Releases when a `vX.Y.Z` tag is pushed.
 
 ## License / provenance
 Reverse-engineered for interoperability to restore control of legally-owned hardware whose
